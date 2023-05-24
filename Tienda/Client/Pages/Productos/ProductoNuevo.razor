@@ -1,0 +1,57 @@
+﻿@page "/producto/nuevo"
+@page "/producto/editar/{id:int}"
+@inject HttpClient _http;
+@inject NavigationManager _navigator;
+
+<PageTitle>Nuevo producto</PageTitle>
+
+<h3>@((id > 0) ? "Modificar" : "Nuevo") producto</h3>
+<EditForm Model="elproducto" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="txtNombre" class="form-label">Nombre</label>
+        <InputText id="txtNombre" class="form-control" placeholder="Nombre del producto" @bind-Value="elproducto.Nombre" />
+        <ValidationMessage For="@(()=>elproducto.Nombre)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="txtExistencia" class="form-label">Existencia</label>
+        <InputNumber id="txtExistencia" class="form-control" @bind-Value="elproducto.Existencia" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private Producto? elproducto = new Producto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id > 0)
+        {
+            elproducto = await _http.GetFromJsonAsync<Producto>($"/api/productos/{id}");
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (id == 0)
+        {
+            await _http.PostAsJsonAsync("api/productos", elproducto);
+        }
+        else
+        {
+            await _http.PutAsJsonAsync($"api/productos/{id}", elproducto);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("productos");
+    }
+
+}

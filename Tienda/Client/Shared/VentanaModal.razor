@@ -1,0 +1,28 @@
+﻿
+<!-- Modal -->
+<div class="show modal fade" style="display:block;" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="onCancel"></button>
+            </div>
+            <div class="modal-body">
+                @Mensaje
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="onCancel">Cancelar</button>
+                <button type="button" class="btn btn-primary" @onclick="onConfirm">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Mensaje { get; set; }
+    [Parameter]
+    public EventCallback onConfirm { get; set; }
+    [Parameter]
+    public EventCallback onCancel { get; set; }
+}

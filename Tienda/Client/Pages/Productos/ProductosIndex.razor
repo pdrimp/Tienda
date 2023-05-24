@@ -1,0 +1,89 @@
+﻿@page "/productos"
+@inject HttpClient _http;
+@inject NavigationManager _navigate;
+
+<PageTitle>Productos</PageTitle>
+<h3>Lista de productos</h3>
+<button class="btn btn-primary mb-3" @onclick="Agregar"><span class="oi oi-plus"></span> Agregar</button>
+@if (losproductos == null)
+{
+    <br />
+    <div class="spinner-grow" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Existencia</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Producto producto in losproductos)
+            {
+                <tr>
+                    <td>@producto.Nombre</td>
+                    <td>@producto.Existencia</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary" title="Editar" @onclick="()=>Editar(producto.Id)"><span class="oi oi-pencil"></span></button>
+                        <button class="btn btn-sm btn-outline-danger" title="Eliminar" @onclick="()=>Eliminar(producto.Id)"><span class="oi oi-trash"></span></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (ventanaBorrar)
+{
+    <VentanaModal Mensaje="¿Está seguro de borrar?" onConfirm="aceptarBorrar" onCancel="cancelarBorrar"></VentanaModal>
+}
+
+@code {
+    private List<Producto>? losproductos;
+    private bool ventanaBorrar = false;
+    private int borrarId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        losproductos = await _http.GetFromJsonAsync<List<Producto>>("api/productos");
+    }
+
+    private void Agregar()
+    {
+        _navigate.NavigateTo("producto/nuevo");
+    }
+
+    private void Eliminar(int id)
+    {
+        ventanaBorrar = true;
+        borrarId = id;
+    }
+
+    private void Editar(int id)
+    {
+        _navigate.NavigateTo($"/producto/editar/{id}");
+    }
+
+    private async Task aceptarBorrar()
+    {
+        await _http.DeleteAsync($"/api/productos/{borrarId}");
+        await Cargar();
+        cancelarBorrar();
+    }
+    private void cancelarBorrar()
+    {
+        ventanaBorrar = false;
+        borrarId = 0;
+    }
+}
+
